@@ -11,7 +11,7 @@ import 'package:airport_butler_agents_app/modules/chat/routes/chat_routes.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> defaultRouteObserver = RouteObserver<ModalRoute<void>>();
-final sliderIdAgent = 3;
+final sliderIdAgent = 2;
 GoRouter appRouter(AuthProvider authProvider) => GoRouter(
   navigatorKey: rootNavigatorKey,
   observers: [defaultRouteObserver],
