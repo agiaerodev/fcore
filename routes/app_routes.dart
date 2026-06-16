@@ -8,6 +8,7 @@ import 'package:airport_butler_agents_app/modules/notifications/routes/notificat
 import 'package:airport_butler_agents_app/modules/onboarding/routes/onboarding_routes.dart';
 import 'package:airport_butler_agents_app/modules/onboarding/routes/onboarding_route_names.dart';
 import 'package:airport_butler_agents_app/modules/chat/routes/chat_routes.dart';
+import 'package:airport_butler_agents_app/modules/sliders/routes/sliders_routes.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> defaultRouteObserver = RouteObserver<ModalRoute<void>>();
@@ -23,6 +24,7 @@ GoRouter appRouter(AuthProvider authProvider) => GoRouter(
     ...notificationsRoutes,
     ...onboardingRoutes(sliderIdAgent),
     ...chatRoutes,
+    ...slidersRoutes,
   ],
 );
 
