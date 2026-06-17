@@ -73,3 +73,51 @@ class GreetStatus {
         "color": color,
       };
 }
+
+class Airport {
+  final int id;
+  final String fullName;
+  final String airportName;
+  final String airportIataCode;
+  final String? airportIcaoCode;
+  final String? timezone;
+  final double lat;
+  final double lng;
+  final String airportCode;
+
+  Airport({
+    required this.id,
+    required this.fullName,
+    required this.airportName,
+    required this.airportIataCode,
+    this.airportIcaoCode,
+    this.timezone,
+    required this.lat,
+    required this.lng,
+    required this.airportCode,
+  });
+
+  factory Airport.fromJson(Map<String, dynamic> json) => Airport(
+        id: json["id"] ?? 0,
+        fullName: json["fullName"] ?? "",
+        airportName: json["airportName"] ?? "",
+        airportIataCode: json["airportIataCode"] ?? "",
+        airportIcaoCode: json["airportIcaoCode"],
+        timezone: json["timezone"],
+        lat: (json["lat"] as num?)?.toDouble() ?? 0.0,
+        lng: (json["lng"] as num?)?.toDouble() ?? 0.0,
+        airportCode: json["airportCode"] ?? "",
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "fullName": fullName,
+        "airportName": airportName,
+        "airportIataCode": airportIataCode,
+        "airportIcaoCode": airportIcaoCode,
+        "timezone": timezone,
+        "lat": lat,
+        "lng": lng,
+        "airportCode": airportCode,
+      };
+}

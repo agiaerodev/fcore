@@ -8,28 +8,35 @@ class ListsProvider extends ChangeNotifier {
   List<Station> _stations = [];
   List<GreetStatus> _greetStatuses = [];
   List<FlightType> _flightTypes = [];
+  List<Airport> _airports = [];
 
   bool _isLoading = false;
 
   List<Station> get stations => _stations;
   List<GreetStatus> get greetStatuses => _greetStatuses;
   List<FlightType> get flightTypes => _flightTypes;
+  List<Airport> get airports => _airports;
   bool get isLoading => _isLoading;
 
   /// Inicializa las listas globales si no están cargadas.
   Future<void> init() async {
-    // Si ya está cargando o ya tiene datos, no re-inicializar
-    if (_isLoading || (_stations.isNotEmpty && _greetStatuses.isNotEmpty)) return;
+    // Si ya está cargando, no re-inicializar
+    if (_isLoading) return;
+
+    // Solo cargar lo que falte
+    final tasks = <Future>[];
+    if (_stations.isEmpty) tasks.add(_fetchStationsInternal());
+    if (_greetStatuses.isEmpty) tasks.add(_fetchGreetStatusesInternal());
+    if (_flightTypes.isEmpty) tasks.add(_fetchFlightTypesInternal());
+    if (_airports.isEmpty) tasks.add(_fetchAirportsInternal());
+
+    if (tasks.isEmpty) return;
     
     _isLoading = true;
     notifyListeners();
 
     try {
-      await Future.wait([
-        _fetchStationsInternal(),
-        _fetchGreetStatusesInternal(),
-        _fetchFlightTypesInternal(),
-      ]);
+      await Future.wait(tasks);
     } catch (e) {
       debugPrint('Error initializing lists: $e');
     } finally {
@@ -48,6 +55,19 @@ class ListsProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error fetching stations: $e');
+    }
+  }
+
+  Future<void> _fetchAirportsInternal() async {
+    try {
+      final response = await _apiService.index('/flight/v1/airports');
+      if (response != null && response['data'] != null) {
+        _airports = (response['data'] as List)
+            .map((item) => Airport.fromJson(item))
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('Error fetching airports: $e');
     }
   }
 
@@ -100,6 +120,15 @@ class ListsProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     await _fetchFlightTypesInternal();
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Refresco manual de aeropuertos
+  Future<void> fetchAirports() async {
+    _isLoading = true;
+    notifyListeners();
+    await _fetchAirportsInternal();
     _isLoading = false;
     notifyListeners();
   }
