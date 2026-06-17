@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:airport_butler_agents_app/modules/auth/routes/auth_routes.dart';
-import 'package:airport_butler_agents_app/modules/auth/routes/auth_route_names.dart';
-import 'package:airport_butler_agents_app/modules/auth/providers/auth_provider.dart';
-import 'package:airport_butler_agents_app/modules/notifications/routes/notifications_routes.dart';
-import 'package:airport_butler_agents_app/modules/onboarding/routes/onboarding_routes.dart';
-import 'package:airport_butler_agents_app/modules/onboarding/routes/onboarding_route_names.dart';
-import 'package:airport_butler_agents_app/modules/chat/routes/chat_routes.dart';
-import 'package:airport_butler_agents_app/modules/sliders/routes/sliders_routes.dart';
+import '../../modules/auth/routes/auth_routes.dart';
+import '../../modules/auth/routes/auth_route_names.dart';
+import '../../modules/auth/providers/auth_provider.dart';
+import '../../modules/notifications/routes/notifications_routes.dart';
+import '../../modules/onboarding/routes/onboarding_routes.dart';
+import '../../modules/onboarding/routes/onboarding_route_names.dart';
+import '../../modules/chat/routes/chat_routes.dart';
+import '../../modules/sliders/routes/sliders_routes.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> defaultRouteObserver = RouteObserver<ModalRoute<void>>();
