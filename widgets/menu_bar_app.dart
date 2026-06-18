@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/app_button.dart';
+import '../widgets/app_button.dart';
 
 class MenuBarApp extends StatelessWidget {
   const MenuBarApp({ super.key, required this.menuItems });

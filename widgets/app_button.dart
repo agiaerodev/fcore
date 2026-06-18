@@ -20,6 +20,7 @@ class AppButton extends StatelessWidget {
     this.borderColor,
     this.textStyle,
     this.iconSize = 20,
+    this.isLoading = false,
   }) : assert(label != null || leadingIcon != null);
 
   final String? label;
@@ -36,6 +37,7 @@ class AppButton extends StatelessWidget {
   final Color? borderColor;
   final TextStyle? textStyle;
   final double iconSize;
+  final bool isLoading;
 
   bool get _isIconOnly => label == null && leadingIcon != null;
 
@@ -57,7 +59,7 @@ class AppButton extends StatelessWidget {
             borderRadius: border,
           ),
           child: ElevatedButton(
-            onPressed: onPressed,
+            onPressed: isLoading ? null : onPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
@@ -75,7 +77,7 @@ class AppButton extends StatelessWidget {
         width: width,
         height: height,
         child: OutlinedButton(
-          onPressed: onPressed,
+          onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
             foregroundColor: _defaultForegroundColor(),
             side: BorderSide(
@@ -97,7 +99,7 @@ class AppButton extends StatelessWidget {
       width: width,
       height: height,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(bgColor),
           foregroundColor: WidgetStatePropertyAll(fgColor),
@@ -139,6 +141,16 @@ class AppButton extends StatelessWidget {
   }
 
   Widget _buildContent(Color contentColor) {
+    if (isLoading) {
+      return SizedBox(
+        height: 24,
+        width: 24,
+        child: CircularProgressIndicator(
+          color: contentColor,
+          strokeWidth: 2.5,
+        ),
+      );
+    }
     final TextStyle resolvedTextStyle =
         textStyle ??
         TextStyle(

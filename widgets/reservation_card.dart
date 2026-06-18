@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/app_button.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/app_card.dart';
-import 'package:project_airport_butler_passenger_app/modules/reservations/presentation/screen/reservation_detail_screen.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_card.dart';
 
 enum ReservationStatus { inProgress, confirmed }
 
@@ -31,17 +30,19 @@ class ReservationCard extends StatelessWidget {
     required this.reservation,
     required this.onChatTap,
     required this.onCallTap,
+    required this.screen
   });
 
   final ReservationData reservation;
   final VoidCallback onChatTap;
   final VoidCallback onCallTap;
+  final Widget Function({required String bookingId}) screen;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ReservationDetailScreen(bookingId: 'book_1752593806882')));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => screen(bookingId: 'book_1752593806882')));
       },
       child: AppCard(
         slot: Column(

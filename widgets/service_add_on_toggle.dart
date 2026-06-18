@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/app_switch.dart';
+import '../widgets/app_switch.dart';
 
 class ServiceAddOnToggle extends StatelessWidget {
   const ServiceAddOnToggle({

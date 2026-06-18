@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/app_button.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/menu_bar_app.dart';
+import '../widgets/app_button.dart';
+import '../widgets/menu_bar_app.dart';
 
 class NavigationAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NavigationAppBar({
