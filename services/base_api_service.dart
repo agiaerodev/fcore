@@ -232,9 +232,20 @@ class BaseApiService {
         final status = e.response?.statusCode;
         final data = e.response?.data;
 
-        throw Exception(
-          'HTTP $status - ${data?.toString() ?? "Server error"}',
-        );
+        String errorMsg = 'Server error';
+        if (data is Map) {
+          final messages = data['messages'];
+          if (messages is List && messages.isNotEmpty) {
+            final first = messages.first;
+            if (first is Map && first['message'] is String) {
+              errorMsg = first['message'] as String;
+            }
+          }
+        } else if (data != null) {
+          errorMsg = data.toString();
+        }
+
+        throw Exception('HTTP $status - $errorMsg');
 
       case DioExceptionType.cancel:
         throw Exception('Request cancelled');
