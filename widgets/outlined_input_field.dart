@@ -12,14 +12,14 @@ class OutlinedInputField extends StatelessWidget {
     required this.controller,
     this.hintText,
     this.type = TextFieldType.text,
-    //  this.validator
+    this.validator
   });
 
   final String label;
   final TextEditingController controller;
   final String? hintText;
   final TextFieldType type;
-  // final String? Function(String?) validator;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +27,7 @@ class OutlinedInputField extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
+      validator: validator,
       textInputAction: TextInputAction.search,
       // validator: validator,
       style: const TextStyle(
