@@ -26,10 +26,10 @@ class ServiceAddOnToggle extends StatelessWidget {
       spacing: 10,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: Icon(icon, color: Color(0xFF2292C7)),
-        ),
+        // Align(
+        //   alignment: Alignment.topCenter,
+        //   child: Icon(icon, color: Color(0xFF2292C7)),
+        // ),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
