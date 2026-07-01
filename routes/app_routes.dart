@@ -9,10 +9,11 @@ import '../../modules/onboarding/routes/onboarding_routes.dart';
 import '../../modules/onboarding/routes/onboarding_route_names.dart';
 import '../../modules/chat/routes/chat_routes.dart';
 import '../../modules/sliders/routes/sliders_routes.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> defaultRouteObserver = RouteObserver<ModalRoute<void>>();
-final sliderIdAgent = 2;
+final int sliderId = int.tryParse(dotenv.env['SLIDER_ID'] ?? '') ?? 0;
 GoRouter appRouter(AuthProvider authProvider) => GoRouter(
   navigatorKey: rootNavigatorKey,
   observers: [defaultRouteObserver],
@@ -22,7 +23,7 @@ GoRouter appRouter(AuthProvider authProvider) => GoRouter(
   routes: [
     ...authRoutes,
     ...notificationsRoutes,
-    ...onboardingRoutes(sliderIdAgent),
+    ...onboardingRoutes(sliderId),
     ...chatRoutes,
     ...slidersRoutes,
   ],
