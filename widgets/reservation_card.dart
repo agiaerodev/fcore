@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:project_airport_butler_passenger_app/modules/reservations/models/reservation_model.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_card.dart';
 
-enum ReservationStatus { inProgress, confirmed }
-
 class ReservationData {
   const ReservationData({
+    required this.bookingId,
     required this.routeCode,
     required this.routeName,
     required this.dateTimeText,
@@ -15,13 +15,14 @@ class ReservationData {
     required this.status,
   });
 
+  final int bookingId;
   final String routeCode;
   final String routeName;
   final String dateTimeText;
   final String agentName;
   final String agentRole;
   final String agentImageUrl;
-  final ReservationStatus status;
+  final BookingStatus status;
 }
 
 class ReservationCard extends StatelessWidget {
@@ -36,13 +37,18 @@ class ReservationCard extends StatelessWidget {
   final ReservationData reservation;
   final VoidCallback onChatTap;
   final VoidCallback onCallTap;
-  final Widget Function({required String bookingId}) screen;
+  final Widget Function({required int bookingId}) screen;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => screen(bookingId: 'book_1752593806882')));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => screen(bookingId: reservation.bookingId),
+          ),
+        );
       },
       child: AppCard(
         slot: Column(
@@ -87,10 +93,10 @@ class ReservationCard extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundImage: NetworkImage(reservation.agentImageUrl),
-                ),
+                // CircleAvatar(
+                //   radius: 22,
+                //   backgroundImage: NetworkImage(reservation.agentImageUrl),
+                // ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -152,20 +158,19 @@ class ReservationCard extends StatelessWidget {
 class _StatusTag extends StatelessWidget {
   const _StatusTag({required this.status});
 
-  final ReservationStatus status;
+  final BookingStatus status;
 
   @override
   Widget build(BuildContext context) {
-    final bool isInProgress = status == ReservationStatus.inProgress;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isInProgress ? const Color(0xFF4D6CE8) : const Color(0xFF54B768),
+        color: status.flutterColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        isInProgress ? 'In Progress' : 'Confirmed',
+        status.name,
         style: const TextStyle(
           color: Colors.white,
           fontSize: 13,
