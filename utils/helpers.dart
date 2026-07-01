@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 final GlobalKey<ScaffoldMessengerState> snackbarKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -54,5 +55,30 @@ Color parseColor(String? hexColor) {
     return Color(int.parse(formatted));
   } catch (e) {
     return Colors.grey; // fallback seguro
+  }
+}
+
+String formatDate({ 
+  required String date,
+  String format = 'dd/MM/yyyy',
+}) {
+  try {
+    DateTime parsedDate = DateTime.parse(date);
+    
+    String formattedDate = DateFormat(format).format(parsedDate);
+    
+    return formattedDate;
+  } catch (e) {
+    return 'Invalid date'; 
+  }
+}
+
+extension StringExtension on String {
+  String capitalizeWords() {
+    return split(' ')
+      .map((word) => word.isEmpty
+        ? word
+        : word[0].toUpperCase() + word.substring(1).toLowerCase())
+      .join(' ');
   }
 }
