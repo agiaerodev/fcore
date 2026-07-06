@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_airport_butler_passenger_app/core/utils/avatar_url_helper.dart';
 import 'package:project_airport_butler_passenger_app/modules/reservations/models/reservation_model.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_card.dart';
@@ -11,7 +12,7 @@ class ReservationData {
     required this.dateTimeText,
     required this.agentName,
     required this.agentRole,
-    required this.agentImageUrl,
+    this.agentImageUrl,
     required this.status,
   });
 
@@ -21,7 +22,7 @@ class ReservationData {
   final String dateTimeText;
   final String agentName;
   final String agentRole;
-  final String agentImageUrl;
+  final String? agentImageUrl;
   final BookingStatus status;
 }
 
@@ -41,6 +42,11 @@ class ReservationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String avatarUrl = resolveAvatarUrl(
+      displayName: reservation.agentName, 
+      imageUrl: reservation.agentImageUrl
+    );
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -93,10 +99,10 @@ class ReservationCard extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                // CircleAvatar(
-                //   radius: 22,
-                //   backgroundImage: NetworkImage(reservation.agentImageUrl),
-                // ),
+                CircleAvatar(
+                  radius: 22,
+                  backgroundImage: NetworkImage(avatarUrl),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
