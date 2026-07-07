@@ -9,7 +9,6 @@ import '../../modules/onboarding/routes/onboarding_routes.dart';
 import '../../modules/onboarding/routes/onboarding_route_names.dart';
 import '../../modules/chat/routes/chat_routes.dart';
 import '../../modules/sliders/routes/sliders_routes.dart';
-import '../../modules/payment/routes/payment_routes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -27,7 +26,6 @@ GoRouter appRouter(AuthProvider authProvider) => GoRouter(
     ...onboardingRoutes(sliderId),
     ...chatRoutes,
     ...slidersRoutes,
-    ...paymentRoutes,
   ],
 );
 
