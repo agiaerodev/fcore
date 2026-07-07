@@ -12,7 +12,9 @@ class OutlinedInputField extends StatelessWidget {
     required this.controller,
     this.hintText,
     this.type = TextFieldType.text,
-    this.validator
+    this.validator,
+    this.focusNode,
+    this.onFieldSubmitted,
   });
 
   final String label;
@@ -20,6 +22,8 @@ class OutlinedInputField extends StatelessWidget {
   final String? hintText;
   final TextFieldType type;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
+  final void Function(String)? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +32,8 @@ class OutlinedInputField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       validator: validator,
+      focusNode: focusNode,
+      onFieldSubmitted: onFieldSubmitted,
       textInputAction: TextInputAction.search,
       // validator: validator,
       style: const TextStyle(
