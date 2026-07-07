@@ -92,8 +92,11 @@ class AppButton extends StatelessWidget {
       );
     }
 
+    final bool isDisabled = !isLoading && onPressed == null;
     final Color bgColor = backgroundColor ?? const Color.fromARGB(255, 239, 239, 239);
     final Color fgColor = _defaultForegroundColor();
+    final Color resolvedBgColor = isDisabled ? bgColor.withValues(alpha: 0.5) : bgColor;
+    final Color resolvedFgColor = isDisabled ? fgColor.withValues(alpha: 0.5) : fgColor;
 
     return SizedBox(
       width: width,
@@ -101,14 +104,14 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(bgColor),
-          foregroundColor: WidgetStatePropertyAll(fgColor),
+          backgroundColor: WidgetStatePropertyAll(resolvedBgColor),
+          foregroundColor: WidgetStatePropertyAll(resolvedFgColor),
           overlayColor: WidgetStatePropertyAll(fgColor.withValues(alpha: 0.08)),
           elevation: const WidgetStatePropertyAll(0),
           padding: WidgetStatePropertyAll(_resolvedPadding()),
           shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: border)),
         ),
-        child: _buildContent(fgColor),
+        child: _buildContent(resolvedFgColor),
       ),
     );
   }
