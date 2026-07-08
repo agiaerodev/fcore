@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateInputField extends StatelessWidget {
-  const DateInputField({ 
+  const DateInputField({
     super.key,
     required this.label,
     required this.value,
@@ -10,26 +10,52 @@ class DateInputField extends StatelessWidget {
     this.firstDate,
     this.lastDate,
     this.format,
+    this.includeTime = false,
+    this.placeholder,
   });
 
   final String label;
-  final DateTime value;
+  final DateTime? value;
   final ValueChanged<DateTime> onChanged;
   final DateTime? firstDate;
   final DateTime? lastDate;
   final String? format;
+  final bool includeTime;
+  final String? placeholder;
 
   Future<void> openPicker(BuildContext context) async {
     final now = DateTime.now();
+    final initial = value ?? now;
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: value.isBefore(now) ? now : value,
+      initialDate: initial.isBefore(now) ? now : initial,
       firstDate: firstDate ?? DateTime(1900),
       lastDate: lastDate ?? DateTime(2100),
     );
-    if (pickedDate != null) {
+    if (pickedDate == null) return;
+
+    if (!includeTime) {
       onChanged(pickedDate);
+      return;
     }
+
+    if (!context.mounted) return;
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+    );
+    if (pickedTime == null) {
+      onChanged(pickedDate);
+      return;
+    }
+
+    onChanged(DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    ));
   }
 
   String _daySuffix(int day) {
@@ -42,7 +68,8 @@ class DateInputField extends StatelessWidget {
     };
   }
 
-  String _formatDate(DateTime date) {
+  String? _formatDate(DateTime? date) {
+    if (date == null) return null;
     if (format != null) {
       String valueFormat = DateFormat(format).format(date);
       return valueFormat;
@@ -53,11 +80,14 @@ class DateInputField extends StatelessWidget {
       'July', 'August', 'September', 'October', 'November', 'December',
     ];
     final suffix = _daySuffix(date.day);
-    return '${months[date.month - 1]} ${date.day}$suffix, ${date.year}';
+    final datePart = '${months[date.month - 1]} ${date.day}$suffix, ${date.year}';
+    if (!includeTime) return datePart;
+    return '$datePart - ${DateFormat('h:mm a').format(date)}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final formatted = _formatDate(value);
     return GestureDetector(
       onTap: () => openPicker(context),
       child: InputDecorator(
@@ -98,9 +128,11 @@ class DateInputField extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              _formatDate(value),
-              style: const TextStyle(
-                color: Color(0xFF1A2B47),
+              formatted ?? placeholder ?? 'Select date',
+              style: TextStyle(
+                color: formatted == null
+                  ? const Color(0xFF8CA0B3)
+                  : const Color(0xFF1A2B47),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
