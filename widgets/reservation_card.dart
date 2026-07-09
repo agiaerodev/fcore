@@ -7,7 +7,6 @@ import '../widgets/app_card.dart';
 class ReservationData {
   const ReservationData({
     required this.bookingId,
-    required this.routeCode,
     required this.routeName,
     required this.dateTimeText,
     required this.agentName,
@@ -17,7 +16,6 @@ class ReservationData {
   });
 
   final int bookingId;
-  final String routeCode;
   final String routeName;
   final String dateTimeText;
   final String agentName;
@@ -64,7 +62,7 @@ class ReservationCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    reservation.routeCode,
+                    'ID ${reservation.bookingId.toString()}',
                     style: const TextStyle(
                       color: Color(0xFF2093CF),
                       fontSize: 14,
