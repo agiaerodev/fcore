@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_airport_butler_passenger_app/core/widgets/app_button.dart';
 import '../widgets/app_switch.dart';
 
 class ServiceAddOnToggle extends StatelessWidget {
   const ServiceAddOnToggle({
     super.key,
-    required this.icon,
+    this.icon,
     required this.title,
     required this.subtitle,
     this.price = '--',
@@ -16,7 +17,7 @@ class ServiceAddOnToggle extends StatelessWidget {
     this.onQuantityChanged,
   });
 
-  final IconData icon;
+  final FaIconData? icon;
   final String title;
   final String subtitle;
   final String price;
@@ -37,6 +38,11 @@ class ServiceAddOnToggle extends StatelessWidget {
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (icon != null)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: FaIcon(icon, color: Color(0xFF2292C7)),
+                ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
