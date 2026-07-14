@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum TextFieldType {
   text,
@@ -15,6 +16,7 @@ class OutlinedInputField extends StatelessWidget {
     this.validator,
     this.focusNode,
     this.onFieldSubmitted,
+    this.inputFormatters,
   });
 
   final String label;
@@ -24,6 +26,7 @@ class OutlinedInputField extends StatelessWidget {
   final String? Function(String?)? validator;
   final FocusNode? focusNode;
   final void Function(String)? onFieldSubmitted;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +37,7 @@ class OutlinedInputField extends StatelessWidget {
       validator: validator,
       focusNode: focusNode,
       onFieldSubmitted: onFieldSubmitted,
+      inputFormatters: inputFormatters,
       textInputAction: TextInputAction.search,
       // validator: validator,
       style: const TextStyle(
