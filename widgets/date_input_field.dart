@@ -25,12 +25,18 @@ class DateInputField extends StatelessWidget {
 
   Future<void> openPicker(BuildContext context) async {
     final now = DateTime.now();
-    final initial = value ?? now;
+    final first = firstDate ?? DateTime(1900);
+    final last = lastDate ?? DateTime(2100);
+
+    var initial = value ?? now;
+    if (initial.isBefore(first)) initial = first;
+    if (initial.isAfter(last)) initial = last;
+
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: initial.isBefore(now) ? now : initial,
-      firstDate: firstDate ?? DateTime(1900),
-      lastDate: lastDate ?? DateTime(2100),
+      initialDate: initial,
+      firstDate: first,
+      lastDate: last,
     );
     if (pickedDate == null) return;
 
@@ -127,14 +133,18 @@ class DateInputField extends StatelessWidget {
               color: Color(0xFF40556C),
             ),
             const SizedBox(width: 12),
-            Text(
-              formatted ?? placeholder ?? 'Select date',
-              style: TextStyle(
-                color: formatted == null
-                  ? const Color(0xFF8CA0B3)
-                  : const Color(0xFF1A2B47),
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+            Expanded(
+              child: Text(
+                formatted ?? placeholder ?? 'Select date',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: formatted == null
+                    ? const Color(0xFF8CA0B3)
+                    : const Color(0xFF1A2B47),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
