@@ -5,7 +5,9 @@ class PreferencesService {
   factory PreferencesService() => _instance;
   PreferencesService._internal();
 
-  final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   Future<bool> hasSeenWelcome() async {
     final seen = await _storage.read(key: 'hasSeenWelcome');

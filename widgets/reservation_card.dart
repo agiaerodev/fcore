@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_airport_butler_passenger_app/core/utils/avatar_url_helper.dart';
+import '../utils/avatar_url_helper.dart';
 import 'package:project_airport_butler_passenger_app/modules/reservations/models/reservation_model.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_card.dart';

@@ -12,7 +12,9 @@ class ApiClient {
   late final Dio dio;
   VoidCallback? onUnauthorized;
   bool _isHandlingUnauthorized = false;
-  final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   late final CacheOptions cacheOptions;
 
