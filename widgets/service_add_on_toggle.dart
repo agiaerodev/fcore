@@ -69,7 +69,7 @@ class ServiceAddOnToggle extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  '\$${(double.tryParse(price) ?? 0.0).toStringAsFixed(2)}',
+                  '\$${double.tryParse(price) ?? 0.0}',
                   style: const TextStyle(
                     color: Color(0xFF162F48),
                     fontSize: 14,
