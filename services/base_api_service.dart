@@ -117,7 +117,7 @@ class BaseApiService {
     try {
       final res = await _dio.post(
         route,
-        data: data,
+        data: toSnakeCaseDeep(data),
         options: _buildOptions(config),
       );
       return res.data;
