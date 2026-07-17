@@ -14,6 +14,16 @@ String replaceParamsApiRoute(
   return url;
 }
 
+dynamic toSnakeCaseDeep(dynamic value) {
+  if (value is Map) {
+    return toSnakeCaseMap(value.map((k, v) => MapEntry(k.toString(), v)));
+  }
+  if (value is List) {
+    return value.map(toSnakeCaseDeep).toList();
+  }
+  return value;
+}
+
 Map<String, dynamic> toSnakeCaseMap(Map<String, dynamic> map) {
   final result = <String, dynamic>{};
   map.forEach((key, value) {
@@ -21,15 +31,7 @@ Map<String, dynamic> toSnakeCaseMap(Map<String, dynamic> map) {
       RegExp(r'[A-Z]'),
           (match) => '_${match.group(0)!.toLowerCase()}',
     );
-    if (value is Map<String, dynamic>) {
-      result[newKey] = toSnakeCaseMap(value);
-    } else if (value is List) {
-      result[newKey] = value
-          .map((e) => e is Map<String, dynamic> ? toSnakeCaseMap(e) : e)
-          .toList();
-    } else {
-      result[newKey] = value;
-    }
+    result[newKey] = toSnakeCaseDeep(value);
   });
   return result;
 }
