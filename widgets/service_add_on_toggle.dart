@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_airport_butler_passenger_app/core/widgets/app_button.dart';
+import '../widgets/app_button.dart';
 import '../widgets/app_switch.dart';
 
 class ServiceAddOnToggle extends StatelessWidget {
