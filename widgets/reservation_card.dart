@@ -126,15 +126,10 @@ class ReservationCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                quickActionButton(
+                /*quickActionButton(
                   icon: Icons.chat_bubble_outline,
                   onTap: onChatTap,
-                ),
-                const SizedBox(width: 10),
-                quickActionButton(
-                  icon: Icons.call_outlined, 
-                  onTap: onCallTap
-                ),
+                ),*/
               ],
             ),
           ],
