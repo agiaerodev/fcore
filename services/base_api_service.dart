@@ -240,6 +240,10 @@ class BaseApiService {
             if (first is Map && first['message'] is String) {
               errorMsg = first['message'] as String;
             }
+          } else if (data['message'] is String) {
+            errorMsg = data['message'] as String;
+          } else if (data['data'] is Map && data['data']['message'] is String) {
+            errorMsg = data['data']['message'] as String;
           }
         } else if (data != null) {
           errorMsg = data.toString();
