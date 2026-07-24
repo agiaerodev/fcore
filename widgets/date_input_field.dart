@@ -12,6 +12,8 @@ class DateInputField extends StatelessWidget {
     this.format,
     this.includeTime = false,
     this.placeholder,
+    this.minDateTime,
+    this.onSelectionRejected,
   });
 
   final String label;
@@ -23,12 +25,17 @@ class DateInputField extends StatelessWidget {
   final bool includeTime;
   final String? placeholder;
 
+  final DateTime? minDateTime;
+
+  final ValueChanged<DateTime>? onSelectionRejected;
+
   Future<void> openPicker(BuildContext context) async {
     final now = DateTime.now();
-    final first = firstDate ?? DateTime(1900);
+    final min = minDateTime;
+    final first = firstDate ?? (min != null ? DateUtils.dateOnly(min) : DateTime(1900));
     final last = lastDate ?? DateTime(2100);
 
-    var initial = value ?? now;
+    var initial = value ?? (min != null && min.isAfter(now) ? min : now);
     if (initial.isBefore(first)) initial = first;
     if (initial.isAfter(last)) initial = last;
 
@@ -41,27 +48,48 @@ class DateInputField extends StatelessWidget {
     if (pickedDate == null) return;
 
     if (!includeTime) {
+      if (min != null && pickedDate.isBefore(DateUtils.dateOnly(min))) {
+        onSelectionRejected?.call(pickedDate);
+        return;
+      }
       onChanged(pickedDate);
       return;
     }
 
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      if (min != null && pickedDate.isBefore(min)) {
+        onSelectionRejected?.call(pickedDate);
+      } else {
+        onChanged(pickedDate);
+      }
+      return;
+    }
+
+    final initialTime = min != null && DateUtils.isSameDay(pickedDate, min)
+      ? TimeOfDay.fromDateTime(min)
+      : TimeOfDay.fromDateTime(initial);
+
     final pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(initial),
+      initialTime: initialTime,
     );
-    if (pickedTime == null) {
-      onChanged(pickedDate);
+
+    final selected = pickedTime == null
+      ? pickedDate
+      : DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+    if (min != null && selected.isBefore(min)) {
+      onSelectionRejected?.call(selected);
       return;
     }
 
-    onChanged(DateTime(
-      pickedDate.year,
-      pickedDate.month,
-      pickedDate.day,
-      pickedTime.hour,
-      pickedTime.minute,
-    ));
+    onChanged(selected);
   }
 
   String _daySuffix(int day) {
