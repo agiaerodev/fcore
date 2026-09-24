@@ -10,6 +10,7 @@ import '../../modules/onboarding/routes/onboarding_routes.dart';
 import '../../modules/onboarding/routes/onboarding_route_names.dart';
 import '../../modules/chat/routes/chat_routes.dart';
 import '../../modules/sliders/routes/sliders_routes.dart';
+import '../../modules/reminders/routes/reminder_routes.dart';
 import 'pending_deep_link.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -29,6 +30,7 @@ GoRouter appRouter(AuthProvider authProvider) => GoRouter(
     ...onboardingRoutes(onboardingSystemName),
     ...chatRoutes,
     ...slidersRoutes,
+    ...reminderRoutes,
   ],
 );
 
