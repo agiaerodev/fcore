@@ -10,14 +10,16 @@ import '../../modules/onboarding/routes/onboarding_routes.dart';
 import '../../modules/onboarding/routes/onboarding_route_names.dart';
 import '../../modules/chat/routes/chat_routes.dart';
 import '../../modules/sliders/routes/sliders_routes.dart';
-import '../../modules/reminders/routes/reminder_routes.dart';
 import 'pending_deep_link.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> defaultRouteObserver = RouteObserver<ModalRoute<void>>();
 final String onboardingSystemName = dotenv.env['ONBOARDING_SYSTEM_NAME'] ?? '';
-GoRouter appRouter(AuthProvider authProvider) => GoRouter(
+GoRouter appRouter(
+  AuthProvider authProvider, {
+  List<RouteBase> additionalRoutes = const [],
+}) => GoRouter(
   navigatorKey: rootNavigatorKey,
   observers: [defaultRouteObserver],
   initialLocation: AuthRouteNames.splash,
@@ -30,7 +32,7 @@ GoRouter appRouter(AuthProvider authProvider) => GoRouter(
     ...onboardingRoutes(onboardingSystemName),
     ...chatRoutes,
     ...slidersRoutes,
-    ...reminderRoutes,
+    ...additionalRoutes,
   ],
 );
 
