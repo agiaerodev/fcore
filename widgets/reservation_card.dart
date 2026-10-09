@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../utils/avatar_url_helper.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_card.dart';
@@ -7,7 +8,8 @@ class ReservationData {
   const ReservationData({
     required this.bookingId,
     required this.routeName,
-    required this.dateTimeText,
+    this.greetStartDate,
+    this.dateTimeText,
     required this.agentName,
     required this.agentRole,
     this.agentImageUrl,
@@ -17,12 +19,20 @@ class ReservationData {
 
   final int bookingId;
   final String routeName;
-  final String dateTimeText;
+  final DateTime? greetStartDate;
+  final String? dateTimeText;
   final String agentName;
   final String agentRole;
   final String? agentImageUrl;
   final String statusLabel;
   final Color statusColor;
+
+  String get formattedDateTime {
+    if (dateTimeText != null) return dateTimeText!;
+    final date = greetStartDate;
+    if (date == null) return '--';
+    return '${DateFormat('MMM, dd yyyy').format(date)} - ${DateFormat('hh:mm a').format(date)}';
+  }
 }
 
 class ReservationCard extends StatelessWidget {
@@ -92,7 +102,7 @@ class ReservationCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              reservation.dateTimeText,
+              reservation.formattedDateTime,
               style: const TextStyle(
                 color: Color(0xFF718499),
                 fontSize: 16,
