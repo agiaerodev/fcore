@@ -10,6 +10,7 @@ class PickerInputField extends StatelessWidget {
     required this.onTap,
     this.errorText,
     this.enabled = true,
+    this.isLoading = false,
   });
 
   final String label;
@@ -25,6 +26,10 @@ class PickerInputField extends StatelessWidget {
 
   /// When false the value is shown read-only and tapping does nothing.
   final bool enabled;
+
+  /// Shows a spinner in place of [icon] and blocks the field like [enabled]
+  /// does, for values still being resolved.
+  final bool isLoading;
 
   static const _labelStyle = TextStyle(
     color: Color(0xFF40556C),
@@ -43,11 +48,13 @@ class PickerInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final interactive = enabled && !isLoading;
+
     return GestureDetector(
-      onTap: enabled ? onTap : null,
+      onTap: interactive ? onTap : null,
       child: InputDecorator(
         decoration: InputDecoration(
-          enabled: enabled,
+          enabled: interactive,
           labelText: label,
           labelStyle: _labelStyle,
           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -64,11 +71,20 @@ class PickerInputField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: const Color(0xFF40556C),
-            ),
+            if (isLoading)
+              const SizedBox.square(
+                dimension: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF40556C),
+                ),
+              )
+            else
+              Icon(
+                icon,
+                size: 20,
+                color: const Color(0xFF40556C),
+              ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -76,7 +92,7 @@ class PickerInputField extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: value == null || !enabled
+                  color: value == null || !interactive
                     ? const Color(0xFF8CA0B3)
                     : const Color(0xFF1A2B47),
                   fontSize: 16,
