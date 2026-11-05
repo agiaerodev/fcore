@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import '../models/impersonation_session.dart';
 
 enum TokenRefreshResult {
   success,
@@ -83,6 +84,14 @@ class ApiClient {
   DateTime? _expiresAt;
   Future<void>? _sessionLoad;
   int _sessionVersion = 0;
+  int _identityVersion = 0;
+  bool _isChangingIdentity = false;
+  Map<String, dynamic>? _impersonation;
+  Future<void> _impersonationWrites = Future<void>.value();
+  static const _impersonationKey = 'impersonationSession';
+
+  bool get isImpersonating => _impersonation != null;
+  int get identityVersion => _identityVersion;
 
   late final CacheOptions cacheOptions;
 
@@ -107,11 +116,20 @@ class ApiClient {
       ),
     );
 
-    dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
-
     dio.interceptors.add(
-      InterceptorsWrapper(onRequest: onRequest, onError: onError),
+      InterceptorsWrapper(
+        onRequest: onRequest,
+        onResponse: (response, handler) {
+          if (_isStaleRequest(response.requestOptions)) {
+            handler.reject(_identityChangedError(response.requestOptions));
+          } else {
+            handler.next(response);
+          }
+        },
+        onError: onError,
+      ),
     );
+    dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
   }
 
   // ========================
@@ -122,6 +140,11 @@ class ApiClient {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    options.extra.putIfAbsent('identityVersion', () => _identityVersion);
+    if (_isChangingIdentity || _isStaleRequest(options)) {
+      handler.reject(_identityChangedError(options));
+      return;
+    }
     var token = await getToken();
     if (token != null &&
         token.isNotEmpty &&
@@ -152,6 +175,10 @@ class ApiClient {
       token = await getToken();
     }
 
+    if (_isChangingIdentity || _isStaleRequest(options)) {
+      handler.reject(_identityChangedError(options));
+      return;
+    }
     if (token != null &&
         token.isNotEmpty &&
         !options.headers.containsKey('Authorization')) {
@@ -165,6 +192,9 @@ class ApiClient {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
+    if (_isStaleRequest(err.requestOptions)) {
+      return handler.reject(_identityChangedError(err.requestOptions));
+    }
     if (err.response?.statusCode == 401) {
       final requestOptions = err.requestOptions;
       final canRetry =
@@ -175,6 +205,9 @@ class ApiClient {
           ? await refreshTokenWithResult()
           : TokenRefreshResult.rejected;
 
+      if (_isStaleRequest(requestOptions)) {
+        return handler.reject(_identityChangedError(requestOptions));
+      }
       if (refreshResult == TokenRefreshResult.unavailable) {
         // The refresh endpoint is unreachable; don't destroy the session.
         return handler.reject(
@@ -219,6 +252,15 @@ class ApiClient {
     onUnauthorized?.call();
   }
 
+  bool _isStaleRequest(RequestOptions options) =>
+      options.extra['identityVersion'] != _identityVersion;
+
+  DioException _identityChangedError(RequestOptions options) => DioException(
+    requestOptions: options,
+    type: DioExceptionType.cancel,
+    message: 'Session identity changed',
+  );
+
   // ========================
   // Token Handling
   // ========================
@@ -229,6 +271,17 @@ class ApiClient {
     String? refreshToken,
     DateTime? refreshExpiresAt,
   }) async {
+    if (isImpersonating) {
+      await _updateImpersonation({
+        'accessToken': accessToken,
+        'expiresIn': expiresAt.toUtc().toIso8601String(),
+        if (refreshToken != null) 'refreshToken': refreshToken,
+        if (refreshExpiresAt != null)
+          'refreshExpiresIn': refreshExpiresAt.toUtc().toIso8601String(),
+      });
+      _setSession(accessToken, expiresAt.toUtc());
+      return;
+    }
     // Memory first: in-flight requests use the new token right away.
     _setSession(accessToken, expiresAt.toUtc());
     await _storage.write(key: 'accessToken', value: accessToken);
@@ -248,6 +301,12 @@ class ApiClient {
   }
 
   Future<void> deleteTokens() async {
+    if (isImpersonating) {
+      // Only invalidate the temporary token. The original credentials remain
+      // untouched until AuthProvider restores the original user.
+      _setSession(null, null);
+      return;
+    }
     // Memory first: stop sending the token even if a delete fails.
     _setSession(null, null);
     await _storage.delete(key: 'accessToken');
@@ -266,6 +325,10 @@ class ApiClient {
 
   Future<void> saveCachedUser(Map<String, dynamic> user) async {
     try {
+      if (isImpersonating) {
+        await _updateImpersonation({_cachedUserKey: user});
+        return;
+      }
       await _storage.write(key: _cachedUserKey, value: jsonEncode(user));
     } catch (e) {
       _logger.w('Unable to cache user data', error: e);
@@ -274,6 +337,12 @@ class ApiClient {
 
   Future<Map<String, dynamic>?> readCachedUser() async {
     try {
+      await _ensureSessionLoaded();
+      if (isImpersonating) {
+        return Map<String, dynamic>.from(
+          _impersonation![_cachedUserKey] as Map,
+        );
+      }
       final raw = await _storage.read(key: _cachedUserKey);
       if (raw == null || raw.isEmpty) return null;
       final decoded = jsonDecode(raw);
@@ -288,6 +357,7 @@ class ApiClient {
       await refreshTokenWithResult() == TokenRefreshResult.success;
 
   Future<TokenRefreshResult> refreshTokenWithResult() async {
+    if (_isChangingIdentity) return TokenRefreshResult.unavailable;
     final activeRefresh = _refreshingToken;
     if (activeRefresh != null) return activeRefresh;
 
@@ -302,8 +372,8 @@ class ApiClient {
 
   Future<TokenRefreshResult> _refreshToken() async {
     try {
-      final refreshToken = await _storage.read(key: 'refreshToken');
-      final refreshExpiresAt = await _storage.read(key: 'refreshExpiresIn');
+      final refreshToken = await _readSessionValue('refreshToken');
+      final refreshExpiresAt = await _readSessionValue('refreshExpiresIn');
       final parsedRefreshExpiration = DateTime.tryParse(
         refreshExpiresAt ?? '',
       )?.toUtc();
@@ -411,6 +481,20 @@ class ApiClient {
 
   Future<void> _loadSession() async {
     final version = _sessionVersion;
+    final temporary = await _storage.read(key: _impersonationKey);
+    if (version != _sessionVersion) return;
+    if (temporary != null) {
+      final session = Map<String, dynamic>.from(jsonDecode(temporary) as Map);
+      final token = session['accessToken'] as String;
+      final expiresAt = DateTime.parse(session['expiresIn'] as String).toUtc();
+      if (session[_cachedUserKey] is! Map || session['originalUser'] is! Map) {
+        throw const FormatException('Invalid stored impersonation session.');
+      }
+      _impersonation = session;
+      _accessToken = token;
+      _expiresAt = expiresAt;
+      return;
+    }
     final token = await _storage.read(key: 'accessToken');
     final expiresAtStr = await _storage.read(key: 'expiresIn');
     // saveToken()/deleteTokens() ran during the read: their value wins.
@@ -425,6 +509,98 @@ class ApiClient {
     _accessToken = token;
     _expiresAt = expiresAt;
     _sessionLoad = Future.value();
+  }
+
+  Future<String?> _readSessionValue(String key) async {
+    await _ensureSessionLoaded();
+    return isImpersonating
+        ? _impersonation![key] as String?
+        : _storage.read(key: key);
+  }
+
+  Future<void> _updateImpersonation(Map<String, dynamic> updates) {
+    final identity = _identityVersion;
+    final write = _impersonationWrites.then((_) async {
+      if (_isChangingIdentity ||
+          identity != _identityVersion ||
+          !isImpersonating) {
+        throw StateError('The impersonation session has changed.');
+      }
+      final session = {..._impersonation!, ...updates};
+      await _storage.write(key: _impersonationKey, value: jsonEncode(session));
+      _impersonation = session;
+    });
+    _impersonationWrites = write.onError((Object error, StackTrace stack) {
+      _logger.e(
+        'Unable to persist impersonation',
+        error: error,
+        stackTrace: stack,
+      );
+    });
+    return write;
+  }
+
+  Future<void> beginImpersonation(
+    ImpersonationSession session,
+    Map<String, dynamic> originalUser,
+  ) => _changeIdentity(() async {
+    if (isImpersonating) {
+      throw StateError('End the current impersonation before starting another.');
+    }
+    if (_accessToken == null) {
+      throw StateError('The original session is not available.');
+    }
+    final temporary = <String, dynamic>{
+      'accessToken': session.token,
+      'expiresIn': session.expiresAt.toIso8601String(),
+      'refreshToken': session.refreshToken,
+      'refreshExpiresIn': session.refreshExpiresAt?.toIso8601String(),
+      _cachedUserKey: session.user,
+      'originalUser': originalUser,
+    };
+    // A separate atomic record preserves every original credential and context.
+    await _storage.write(key: _impersonationKey, value: jsonEncode(temporary));
+    _impersonation = temporary;
+    _setSession(session.token, session.expiresAt);
+  });
+
+  Future<Map<String, dynamic>> endImpersonation() => _changeIdentity(() async {
+    if (!isImpersonating) {
+      throw StateError('There is no active impersonation.');
+    }
+    final user = Map<String, dynamic>.from(
+      _impersonation!['originalUser'] as Map,
+    );
+    final token = await _storage.read(key: 'accessToken');
+    final expiration = await _storage.read(key: 'expiresIn');
+    if (token == null || expiration == null) {
+      throw StateError('The original session is not available.');
+    }
+    final expiresAt = DateTime.parse(expiration).toUtc();
+    await _storage.delete(key: _impersonationKey);
+    _impersonation = null;
+    _setSession(token, expiresAt);
+    return user;
+  });
+
+  Future<T> _changeIdentity<T>(Future<T> Function() change) async {
+    await _ensureSessionLoaded();
+    final refresh = _refreshingToken;
+    if (refresh != null) await refresh;
+    if (_isChangingIdentity) {
+      throw StateError('A session change is already in progress.');
+    }
+    _isChangingIdentity = true;
+    try {
+      await _impersonationWrites;
+      await clearCache();
+      final result = await change();
+      _identityVersion++;
+      setHandlingUnauthorized(false);
+      return result;
+    } finally {
+      _isChangingIdentity = false;
+    }
   }
 
   Future<void> clearCache() async {
