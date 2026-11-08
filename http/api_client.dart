@@ -462,6 +462,7 @@ class ApiClient {
 
   Future<String?> getToken() async {
     await _ensureSessionLoaded();
+    print('[AUTH] Access Token: $_accessToken');
     return _accessToken;
   }
 
