@@ -38,7 +38,12 @@ Map<String, dynamic> toSnakeCaseMap(Map<String, dynamic> map) {
   return result;
 }
 
-void showNativeSnackBar(String message, Color color) {
+void showNativeSnackBar(
+  String message,
+  Color color, {
+  Duration? duration,
+  AppSnackBarType? type,
+}) {
   final messenger = snackbarKey.currentState;
   if (messenger == null) return;
 
@@ -48,8 +53,16 @@ void showNativeSnackBar(String message, Color color) {
       AppSnackBar(
         content: Text(message),
         backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        closeIconColor: Colors.white,
+        duration: duration,
+        type:
+            type ??
+            (color == Colors.green
+                ? AppSnackBarType.success
+                : color == Colors.red || color == Colors.redAccent
+                ? AppSnackBarType.error
+                : color == Colors.orange || color == Colors.orangeAccent
+                ? AppSnackBarType.warning
+                : AppSnackBarType.info),
       ),
     );
 }
