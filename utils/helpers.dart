@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../providers/settings_provider.dart' as settings;
+import '../widgets/app_snack_bar.dart';
 
 final GlobalKey<ScaffoldMessengerState> snackbarKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -44,11 +45,11 @@ void showNativeSnackBar(String message, Color color) {
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
-      SnackBar(
+      AppSnackBar(
         content: Text(message),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 1),
+        closeIconColor: Colors.white,
       ),
     );
 }
