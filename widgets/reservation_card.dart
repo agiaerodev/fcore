@@ -10,7 +10,7 @@ class ReservationData {
   const ReservationData({
     required this.bookingId,
     required this.routeName,
-    this.greetStartDate,
+    this.startDate,
     this.dateTimeText,
     required this.agentName,
     required this.agentRole,
@@ -23,7 +23,7 @@ class ReservationData {
 
   final int bookingId;
   final String routeName;
-  final DateTime? greetStartDate;
+  final DateTime? startDate;
   final String? dateTimeText;
   final String agentName;
   final String agentRole;
@@ -35,7 +35,7 @@ class ReservationData {
 
   String get formattedDateTime {
     if (dateTimeText != null) return dateTimeText!;
-    final date = greetStartDate;
+    final date = startDate;
     if (date == null) return '--';
     return '${DateFormat('MMM, dd yyyy').format(date)} - ${DateFormat('hh:mm a').format(date)}';
   }
