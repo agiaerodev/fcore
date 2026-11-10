@@ -9,13 +9,15 @@ class NavigationAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.onReportProblem,
     this.onCancelService,
-    this.actions
+    this.onBackPressed,
+    this.actions,
   });
 
   final String? title;
   final Color? backgroundColor;
   final VoidCallback? onReportProblem;
   final VoidCallback? onCancelService;
+  final VoidCallback? onBackPressed;
   final List<Widget>? actions;
 
   // Visual size for the leading AppButton.
@@ -40,7 +42,7 @@ class NavigationAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: AppButton(
             leadingIcon: Icons.arrow_back,
             iconSize: 24,
-            onPressed: () => Navigator.maybePop(context),
+            onPressed: onBackPressed ?? () => Navigator.maybePop(context),
             variant: AppButtonVariant.filledLight,
             backgroundColor: Colors.white,
             width: leadingButtonSize,
@@ -48,21 +50,20 @@ class NavigationAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: title != null ? Text(
-        title!,
-        style: const TextStyle(
-          color: Color(0xFF162F48),
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-        ),
-      ) : null,
+      title: title != null
+          ? Text(
+              title!,
+              style: const TextStyle(
+                color: Color(0xFF162F48),
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
+            )
+          : null,
       centerTitle: false,
       actions: actions != null && actions!.isNotEmpty
-        ? [
-            MenuBarApp(menuItems: actions!),
-            const SizedBox(width: 8),
-          ]
-        : null,
+          ? [MenuBarApp(menuItems: actions!), const SizedBox(width: 8)]
+          : null,
     );
   }
 }

@@ -4,13 +4,19 @@ import '../utils/avatar_url_helper.dart';
 import '../utils/concierge_role_label.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_card.dart';
+import '../widgets/reservation_trip_summary.dart';
 import '../widgets/status_tag.dart';
 
 class ReservationData {
   const ReservationData({
     required this.bookingId,
     required this.routeName,
-    this.greetStartDate,
+    this.airportCode,
+    this.flightTypeName,
+    this.passengerCount,
+    this.bagCount,
+    this.petCount,
+    this.startDate,
     this.dateTimeText,
     required this.agentName,
     required this.agentRole,
@@ -23,7 +29,12 @@ class ReservationData {
 
   final int bookingId;
   final String routeName;
-  final DateTime? greetStartDate;
+  final String? airportCode;
+  final String? flightTypeName;
+  final int? passengerCount;
+  final int? bagCount;
+  final int? petCount;
+  final DateTime? startDate;
   final String? dateTimeText;
   final String agentName;
   final String agentRole;
@@ -35,7 +46,7 @@ class ReservationData {
 
   String get formattedDateTime {
     if (dateTimeText != null) return dateTimeText!;
-    final date = greetStartDate;
+    final date = startDate;
     if (date == null) return '--';
     return '${DateFormat('MMM, dd yyyy').format(date)} - ${DateFormat('hh:mm a').format(date)}';
   }
@@ -63,6 +74,11 @@ class ReservationCard extends StatelessWidget {
       displayName: reservation.agentName, 
       imageUrl: reservation.agentImageUrl
     );
+    final travelerCounts = ReservationTravelerCounts(
+      passengerCount: reservation.passengerCount,
+      bagCount: reservation.bagCount,
+      petCount: reservation.petCount,
+    );
 
     return GestureDetector(
       onTap: () async {
@@ -88,8 +104,10 @@ class ReservationCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'ID ${reservation.bookingId.toString()}',
+                  child: ReservationIdLabel(
+                    idLabel: 'ID ${reservation.bookingId}',
+                    airportCode: reservation.airportCode,
+                    flightTypeName: reservation.flightTypeName,
                     style: const TextStyle(
                       color: Color(0xFF2093CF),
                       fontSize: 14,
@@ -123,6 +141,10 @@ class ReservationCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
+            if (travelerCounts.hasCounts) ...[
+              const SizedBox(height: 6),
+              travelerCounts,
+            ],
             const SizedBox(height: 8),
             if (reservation.agentName.trim().isNotEmpty &&
                 reservation.agentRole.trim().isNotEmpty) ...[

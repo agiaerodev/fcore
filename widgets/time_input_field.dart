@@ -14,6 +14,7 @@ class TimeInputField extends StatelessWidget {
     this.validator,
     this.use24HourFormat = false,
     this.initialEntryMode = TimePickerEntryMode.input,
+    this.isLoading = false,
   });
 
   final String label;
@@ -22,6 +23,9 @@ class TimeInputField extends StatelessWidget {
   final String? placeholder;
   final bool use24HourFormat;
   final TimePickerEntryMode initialEntryMode;
+
+  /// Shows a spinner and blocks the field while the time is being resolved.
+  final bool isLoading;
 
   /// When set, the field joins the enclosing [Form] and shows the
   /// validation message under it.
@@ -56,6 +60,7 @@ class TimeInputField extends StatelessWidget {
       value: _formatTime(value),
       placeholder: placeholder ?? 'Select time',
       errorText: errorText,
+      isLoading: isLoading,
       onTap: () => openPicker(context),
     );
   }

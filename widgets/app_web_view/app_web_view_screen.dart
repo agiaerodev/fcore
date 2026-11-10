@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../navigation_app_bar.dart';
@@ -41,8 +42,11 @@ class AppWebViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Keep the WKWebView viewport stable while iOS reveals the keyboard.
+      resizeToAvoidBottomInset: defaultTargetPlatform != TargetPlatform.iOS,
       appBar: NavigationAppBar(title: title),
       body: SafeArea(
+        maintainBottomViewPadding: defaultTargetPlatform == TargetPlatform.iOS,
         child: AppWebView(
           url: url,
           redirectUrls: redirectUrls,

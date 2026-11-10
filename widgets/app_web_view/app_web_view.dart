@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -52,9 +50,6 @@ class _AppWebViewState extends State<AppWebView> {
   WebViewController _buildController() {
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setUserAgent(
-        "AirportButlerApp/${Platform.isAndroid ? 'android' : 'apple'}",
-      )
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (_) => _setProgress(0),

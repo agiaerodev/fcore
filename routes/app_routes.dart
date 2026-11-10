@@ -14,7 +14,8 @@ import 'pending_deep_link.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
-final RouteObserver<ModalRoute<void>> defaultRouteObserver = RouteObserver<ModalRoute<void>>();
+final RouteObserver<ModalRoute<void>> defaultRouteObserver =
+    RouteObserver<ModalRoute<void>>();
 final String onboardingSystemName = dotenv.env['ONBOARDING_SYSTEM_NAME'] ?? '';
 GoRouter appRouter(
   AuthProvider authProvider, {
@@ -48,7 +49,7 @@ class _AuthRedirectNotifier extends ChangeNotifier {
   (bool, bool, bool) _state;
 
   static (bool, bool, bool) _snapshot(AuthProvider auth) =>
-    (auth.isAuthenticated, auth.isInitialLoading, auth.hasSeenWelcome);
+      (auth.isAuthenticated, auth.isInitialLoading, auth.hasSeenWelcome);
 
   void _onAuthChanged() {
     final next = _snapshot(_auth);
@@ -64,10 +65,19 @@ class _AuthRedirectNotifier extends ChangeNotifier {
   }
 }
 
-void _handleRouteException(BuildContext context, GoRouterState state, GoRouter router) {
+void _handleRouteException(
+  BuildContext context,
+  GoRouterState state,
+  GoRouter router,
+) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (router.state.matchedLocation == NotificationRouteNames.notifications) return;
-    router.push(NotificationRouteNames.notifications);
+    if (router.state.matchedLocation == NotificationRouteNames.notifications) {
+      return;
+    }
+    debugPrint(
+      '[ROUTER] Unavailable location ${state.uri}; returning to notifications.',
+    );
+    router.go(NotificationRouteNames.notifications);
   });
 }
 
@@ -81,7 +91,9 @@ String? _handleRedirect(GoRouterState state, AuthProvider authProvider) {
   final bool isAtLogin = location == AuthRouteNames.login;
 
   if (kDebugMode) {
-    print("DEBUG: Loading: $isInitialLoading, Auth: $loggedIn, Location: $location  hasSeenWelcome: $hasSeenWelcome");
+    print(
+      "DEBUG: Loading: $isInitialLoading, Auth: $loggedIn, Location: $location  hasSeenWelcome: $hasSeenWelcome",
+    );
   }
 
   if (isInitialLoading) {
@@ -108,10 +120,10 @@ String? _handleRedirect(GoRouterState state, AuthProvider authProvider) {
 }
 
 // These routes are ignored if it is a saved route pending redirection.
-// Scenario: You open the app normally, without a notification and without being logged in; 
+// Scenario: You open the app normally, without a notification and without being logged in;
 // the app sends you to the login screen and records /login.
-// You log in and enter the app; you reach the home screen, which reads the 
-// saved route (/login) and opens the login screen again, on top of the 
+// You log in and enter the app; you reach the home screen, which reads the
+// saved route (/login) and opens the login screen again, on top of the
 // home screen.
 const Set<String> _sessionLocations = {
   AuthRouteNames.splash,
