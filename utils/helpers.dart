@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../providers/settings_provider.dart' as settings;
+import '../widgets/app_snack_bar.dart';
 
 final GlobalKey<ScaffoldMessengerState> snackbarKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -37,18 +38,31 @@ Map<String, dynamic> toSnakeCaseMap(Map<String, dynamic> map) {
   return result;
 }
 
-void showNativeSnackBar(String message, Color color) {
+void showNativeSnackBar(
+  String message,
+  Color color, {
+  Duration? duration,
+  AppSnackBarType? type,
+}) {
   final messenger = snackbarKey.currentState;
   if (messenger == null) return;
 
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
-      SnackBar(
+      AppSnackBar(
         content: Text(message),
         backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 1),
+        duration: duration,
+        type:
+            type ??
+            (color == Colors.green
+                ? AppSnackBarType.success
+                : color == Colors.red || color == Colors.redAccent
+                ? AppSnackBarType.error
+                : color == Colors.orange || color == Colors.orangeAccent
+                ? AppSnackBarType.warning
+                : AppSnackBarType.info),
       ),
     );
 }

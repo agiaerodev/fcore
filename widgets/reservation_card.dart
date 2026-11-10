@@ -17,7 +17,6 @@ class ReservationData {
     this.bagCount,
     this.petCount,
     this.startDate,
-    this.dateTimeText,
     required this.agentName,
     required this.agentRole,
     this.additionalAgentNames = const [],
@@ -35,7 +34,6 @@ class ReservationData {
   final int? bagCount;
   final int? petCount;
   final DateTime? startDate;
-  final String? dateTimeText;
   final String agentName;
   final String agentRole;
   final List<String> additionalAgentNames;
@@ -45,7 +43,6 @@ class ReservationData {
   final String? statusDescription;
 
   String get formattedDateTime {
-    if (dateTimeText != null) return dateTimeText!;
     final date = startDate;
     if (date == null) return '--';
     return '${DateFormat('MMM, dd yyyy').format(date)} - ${DateFormat('hh:mm a').format(date)}';

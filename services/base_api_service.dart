@@ -16,7 +16,9 @@ class BaseApiService {
         .copyWith(
           // Si refresh es true -> CachePolicy.refreshForceCache (obliga al backend)
           // Si refresh es false -> CachePolicy.forceCache (usa cache si tiene < 1 hora)
-          policy: refresh
+          policy: config?['cache'] == false
+              ? CachePolicy.noCache
+              : refresh
               ? CachePolicy.refreshForceCache
               : CachePolicy.forceCache,
         )
